@@ -1,0 +1,123 @@
+资料来源：
+https://deepinout.com/mysql/mysql-questions/210_hk_1710456822.html
+
+
+一、环境准备
+在开始之前，我们需要确保已经安装了以下环境：
+1. Node.js：用于运行React应用
+2. MySQL数据库：用于存储数据
+3. 一个文本编辑器：如Visual Studio Code
+
+二、创建React应用(vite)
+npm create vite@latest
+
+三、安装MySql库
+npm install mysql
+
+四、连接MySql数据库
+在React应用中连接MySQL数据库，我们需要创建一个Node.js后端服务器来处理数据库的操作。
+首先，在项目根目录下创建一个名为server.js的文件，并编写以下代码：
+-------------------------------------------
+// server.js
+const express = require('express');
+const mysql = require('mysql');
+const app = express();
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'react_mysql_db'
+});
+
+db.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log('Connected to MySQL database');
+});
+
+app.get('/users', (req, res) => {
+  db.query('SELECT * FROM users', (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.send(result);
+  });
+});
+
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
+});
+-------------------------------------------
+在上面的代码中，我们创建了一个Express服务器，并使用mysql库连接到本地的MySQL数据库。我们定义了一个GET路由/users，用于从数据库中获取所有用户的数据。
+
+五、创建数据库和数据表
+在MySQL数据库中创建一个名为react_mysql_db的数据库，并创建一个名为users的数据表。运行以下SQL语句来创建数据表：
+-------------------------------------------
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50),
+  email VARCHAR(50)
+);
+-------------------------------------------
+六、编写React组件
+现在我们开始编写React组件来展示从MySQL数据库中获取的用户数据。在src目录下创建一个名为UserList.js的文件，并编写以下代码：
+-------------------------------------------
+// UserList.js
+import React, { useState, useEffect } from 'react';
+
+const UserList = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetch('/users')
+      .then(res => res.json())
+      .then(data => setUsers(data));
+  }, []);
+
+  return (
+    <div>
+      <h2>User List</h2>
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>{user.name} - {user.email}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default UserList;
+-------------------------------------------
+七、渲染React组件
+在src目录下的App.js文件中，引入UserList组件并渲染：
+-------------------------------------------
+// App.js
+import React from 'react';
+import UserList from './UserList';
+
+function App() {
+  return (
+    <div>
+      <h1>React MySQL App</h1>
+      <UserList />
+    </div>
+  );
+}
+
+export default App;
+-------------------------------------------
+八、运行应用
+现在我们已经完成了前后端的连接和数据展示的代码，可以运行React应用和Node.js服务器。在命令行中分别运行以下命令：
+-------------------------------------------
+node server.js
+npm start
+-------------------------------------------
+打开浏览器并访问http://localhost:3000，你将会看到从MySQL数据库中获取的用户数据在页面上展示出来。
+
+
+
+
+
+
